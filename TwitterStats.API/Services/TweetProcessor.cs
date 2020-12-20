@@ -6,10 +6,10 @@ using TwitterStats.API.Repository;
 
 namespace TwitterStats.API.Services
 {
-    public class ProcessTweetInfo : IProcessTweetInfo
+    public class TweetProcessor : ITweetProcessor
     {
         private readonly ITweetInfoRepository _tweetInfoRepository;
-        public ProcessTweetInfo(ITweetInfoRepository tweetInfoRepository)
+        public TweetProcessor(ITweetInfoRepository tweetInfoRepository)
         {
             _tweetInfoRepository = tweetInfoRepository;
         }

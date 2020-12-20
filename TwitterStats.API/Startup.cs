@@ -31,7 +31,7 @@ namespace TwitterStats.API
             services.AddSingleton<ITweetInfoRepository, TweetInfoRepository>();
             
             services.AddTransient<ICredentialProvider, CredentialProvider>();
-            services.AddTransient<IProcessTweetInfo, ProcessTweetInfo>();
+            services.AddTransient<ITweetProcessor, TweetProcessor>();
 
             services.AddHostedService<BackgroundConsumeTwitterFeed>();
         }

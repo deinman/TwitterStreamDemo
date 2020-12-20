@@ -2,7 +2,7 @@
 
 namespace TwitterStats.API.Services
 {
-    public interface IProcessTweetInfo
+    public interface ITweetProcessor
     {
         /// <summary>
         /// This is the main entrypoint for collecting info on tweets.

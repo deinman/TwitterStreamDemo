@@ -64,7 +64,7 @@ namespace TwitterStats.UnitTest
         {
             // Arrange
             var repo = new TweetInfoRepository();
-            var info = new ProcessTweetInfo(repo);
+            var info = new TweetProcessor(repo);
             var tweet = BuildTestTweet("Test");
 
             // Act
@@ -79,7 +79,7 @@ namespace TwitterStats.UnitTest
         public async void Get_rate_success()
         {
             var repo = new TweetInfoRepository();
-            var info = new ProcessTweetInfo(repo);
+            var info = new TweetProcessor(repo);
             var tweet = BuildTestTweet("Test");
             
             info.ProcessTweet(tweet);
@@ -95,7 +95,7 @@ namespace TwitterStats.UnitTest
         public async void No_emoji_produces_no_emoji()
         {
             var repo = new TweetInfoRepository();
-            var info = new ProcessTweetInfo(repo);
+            var info = new TweetProcessor(repo);
             var tweet = BuildTestTweet("Test");
             
             info.ProcessTweet(tweet);
@@ -107,7 +107,7 @@ namespace TwitterStats.UnitTest
         public async void Emoji_produces_emoji()
         {
             var repo = new TweetInfoRepository();
-            var info = new ProcessTweetInfo(repo);
+            var info = new TweetProcessor(repo);
             var tweet = BuildTestTweet("❤");
             
             info.ProcessTweet(tweet);
@@ -119,7 +119,7 @@ namespace TwitterStats.UnitTest
         public async void Calculate_emoji_rate_success()
         {
             var repo = new TweetInfoRepository();
-            var info = new ProcessTweetInfo(repo);
+            var info = new TweetProcessor(repo);
         
             foreach (var tweet in BuildListOfTweets())
             {
@@ -136,7 +136,7 @@ namespace TwitterStats.UnitTest
         public async void Hashtag_is_counted()
         {
             var repo = new TweetInfoRepository();
-            var info = new ProcessTweetInfo(repo);
+            var info = new TweetProcessor(repo);
         
             foreach (var tweet in BuildListOfTweets())
             {
@@ -152,7 +152,7 @@ namespace TwitterStats.UnitTest
         public async void Multiple_hashtags_in_tweet()
         {
             var repo = new TweetInfoRepository();
-            var info = new ProcessTweetInfo(repo);
+            var info = new TweetProcessor(repo);
             var tweet = BuildTestTweet("#Blessed #Mission");
         
             info.ProcessTweet(tweet);
@@ -166,7 +166,7 @@ namespace TwitterStats.UnitTest
         public async void Identify_tweets_with_url()
         {
             var repo = new TweetInfoRepository();
-            var info = new ProcessTweetInfo(repo);
+            var info = new TweetProcessor(repo);
             var tweet = BuildTestTweet("Test", "https://www.google.com");
             
             info.ProcessTweet(tweet);
@@ -180,7 +180,7 @@ namespace TwitterStats.UnitTest
         public async void Identify_tweets_with_image_url()
         {
             var repo = new TweetInfoRepository();
-            var info = new ProcessTweetInfo(repo);
+            var info = new TweetProcessor(repo);
             var tweet = BuildTestTweet("Test", "http://pic.twitter.com/ABCDEFG");
             
             info.ProcessTweet(tweet);
@@ -194,7 +194,7 @@ namespace TwitterStats.UnitTest
         public async void Calculate_percentage_of_urls()
         {
             var repo = new TweetInfoRepository();
-            var info = new ProcessTweetInfo(repo);
+            var info = new TweetProcessor(repo);
         
             foreach (var tweet in BuildListOfTweets())
             {
@@ -212,7 +212,7 @@ namespace TwitterStats.UnitTest
         public async void Urls_Count_Success()
         {
             var repo = new TweetInfoRepository();
-            var info = new ProcessTweetInfo(repo);
+            var info = new TweetProcessor(repo);
         
             foreach (var tweet in BuildListOfTweets())
             {

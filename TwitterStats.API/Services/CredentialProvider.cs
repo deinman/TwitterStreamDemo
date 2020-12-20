@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Tweetinvi;
@@ -18,8 +17,14 @@ namespace TwitterStats.API.Services
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Uses credentials in IConfiguration to build an authenticated Twitter client.
+        /// </summary>
+        /// <returns></returns>
         public async Task<TwitterClient> GetAuthenticatedTwitterClient()
         {
+            _logger.LogDebug("Providing credentials");
+            
             var tempClient = new TwitterClient(new ConsumerOnlyCredentials(
                 _configuration["CONSUMER_KEY"],
                 _configuration["CONSUMER_SECRET"]));
