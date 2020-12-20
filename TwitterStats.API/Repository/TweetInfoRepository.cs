@@ -21,8 +21,7 @@ namespace TwitterStats.API.Repository
         {
             TimeStarted = DateTime.Now;
         }
-        
-        public DateTime TimeStarted { get; }
+
         private long Count { get; set; }
         private long CountWithEmoji { get; set; }
         private long CountWithUrl { get; set; }
@@ -30,6 +29,8 @@ namespace TwitterStats.API.Repository
         private Dictionary<string, int> EmojiCountDict { get; } = new();
         private Dictionary<string, int> HashtagCountDict { get; } = new();
         private Dictionary<string, int> DomainCountDict { get; } = new();
+
+        public DateTime TimeStarted { get; }
 
         public async Task<long> GetCount()
         {
@@ -48,7 +49,7 @@ namespace TwitterStats.API.Repository
             await Task.CompletedTask;
             CountWithUrl++;
         }
-        
+
         public async Task IncrementCountWithUrlOfPhoto()
         {
             await Task.CompletedTask;
@@ -74,14 +75,14 @@ namespace TwitterStats.API.Repository
             await Task.CompletedTask;
             Extensions.AddSingleToCountDict(domain, DomainCountDict);
         }
-        
+
         public async Task<TweetRate> GetTweetRate()
         {
             await Task.CompletedTask;
             var runningSeconds = (DateTime.Now - TimeStarted).TotalSeconds;
             var ret = new TweetRate
             {
-                TweetsPerSecond = (int)Math.Ceiling(Count / runningSeconds)
+                TweetsPerSecond = (int) Math.Ceiling(Count / runningSeconds)
             };
             return ret;
         }
@@ -91,12 +92,13 @@ namespace TwitterStats.API.Repository
             await Task.CompletedTask;
             return EmojiCountDict.OrderByDescending(x => x.Value).Take(count);
         }
-        
+
         public async Task<IEnumerable<KeyValuePair<string, int>>> GetTopHashtag(int count)
         {
             await Task.CompletedTask;
             return HashtagCountDict.OrderByDescending(x => x.Value).Take(count);
         }
+
         public async Task<IEnumerable<KeyValuePair<string, int>>> GetTopDomain(int count)
         {
             await Task.CompletedTask;

@@ -36,15 +36,15 @@ namespace TwitterStats.UnitTest
             // Arrange
             long expectation = 256;
             _repoMock.Setup(x => x.GetCount()).Returns(Task.FromResult(expectation));
-            
+
             // Act
             var infoController = BuildInfoController();
             var result = await infoController.GetCount();
-            
+
             // Assert
             var objectResult = Assert.IsType<OkObjectResult>(result.Result);
             var dto = Assert.IsType<CountDto>(objectResult.Value);
-            Assert.Equal(expectation, dto.TotalTweets); 
+            Assert.Equal(expectation, dto.TotalTweets);
         }
 
         [Fact]
@@ -56,15 +56,15 @@ namespace TwitterStats.UnitTest
                 TweetsPerSecond = 60
             };
             _repoMock.Setup(x => x.GetTweetRate()).Returns(Task.FromResult(expectation));
-            
+
             // Act
             var infoController = BuildInfoController();
             var result = await infoController.GetTweetRate();
-            
+
             // Assert
             var objectResult = Assert.IsType<OkObjectResult>(result.Result);
             var dto = Assert.IsType<TweetRateDto>(objectResult.Value);
-            Assert.Equal(expectation, dto.Rate); 
+            Assert.Equal(expectation, dto.Rate);
         }
 
         [Fact]
@@ -73,11 +73,11 @@ namespace TwitterStats.UnitTest
             // Arrange
             var itemMock = new Mock<IEnumerable<KeyValuePair<string, int>>>();
             _repoMock.Setup(x => x.GetTopEmoji(1)).Returns(Task.FromResult(itemMock.Object));
-            
+
             // Act
             var infoController = BuildInfoController();
             var result = await infoController.GetEmojiInfo();
-            
+
             // Assert
             var objectResult = Assert.IsType<OkObjectResult>(result.Result);
             var dto = Assert.IsType<EmojiDto>(objectResult.Value);

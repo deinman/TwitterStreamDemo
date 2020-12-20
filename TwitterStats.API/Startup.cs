@@ -29,7 +29,7 @@ namespace TwitterStats.API
             });
 
             services.AddSingleton<ITweetInfoRepository, TweetInfoRepository>();
-            
+
             services.AddTransient<ICredentialProvider, CredentialProvider>();
             services.AddTransient<ITweetProcessor, TweetProcessor>();
 
@@ -45,7 +45,7 @@ namespace TwitterStats.API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TwitterStats.API v1"));
             }
-            
+
             app.UseHttpsRedirection();
 
             app.UseSerilogRequestLogging();

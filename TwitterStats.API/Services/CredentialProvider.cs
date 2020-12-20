@@ -8,8 +8,8 @@ namespace TwitterStats.API.Services
 {
     public class CredentialProvider : ICredentialProvider
     {
-        private readonly ILogger<CredentialProvider> _logger;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<CredentialProvider> _logger;
 
         public CredentialProvider(ILogger<CredentialProvider> logger, IConfiguration configuration)
         {
@@ -18,13 +18,13 @@ namespace TwitterStats.API.Services
         }
 
         /// <summary>
-        /// Uses credentials in IConfiguration to build an authenticated Twitter client.
+        ///     Uses credentials in IConfiguration to build an authenticated Twitter client.
         /// </summary>
         /// <returns></returns>
         public async Task<TwitterClient> GetAuthenticatedTwitterClient()
         {
             _logger.LogDebug("Providing credentials");
-            
+
             var tempClient = new TwitterClient(new ConsumerOnlyCredentials(
                 _configuration["CONSUMER_KEY"],
                 _configuration["CONSUMER_SECRET"]));
@@ -36,7 +36,7 @@ namespace TwitterStats.API.Services
             {
                 BearerToken = bearer
             };
-            
+
             return new TwitterClient(appCreds);
         }
     }

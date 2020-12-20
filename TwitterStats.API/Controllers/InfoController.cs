@@ -40,7 +40,7 @@ namespace TwitterStats.API.Controllers
         }
 
         [HttpGet("Emoji")]
-        public async Task<ActionResult<EmojiDto>> GetEmojiInfo([FromQuery]int count = 10)
+        public async Task<ActionResult<EmojiDto>> GetEmojiInfo([FromQuery] int count = 10)
         {
             var ret = new EmojiDto
             {

@@ -8,8 +8,9 @@ namespace TwitterStats.API.Services
 {
     public class TweetProcessor : ITweetProcessor
     {
-        private readonly ITweetInfoRepository _tweetInfoRepository;
         private readonly ILogger<TweetProcessor> _logger;
+        private readonly ITweetInfoRepository _tweetInfoRepository;
+
         public TweetProcessor(ITweetInfoRepository tweetInfoRepository, ILogger<TweetProcessor> logger)
         {
             _tweetInfoRepository = tweetInfoRepository;
@@ -17,56 +18,39 @@ namespace TwitterStats.API.Services
         }
 
         /// <summary>
-        /// This is the main entrypoint for collecting info on tweets.
+        ///     This is the main entrypoint for collecting info on tweets.
         /// </summary>
         /// <param name="tweet"></param>
         public void ProcessTweet(TweetV2 tweet)
         {
             _tweetInfoRepository.IncrementCount();
-            
+
             ProcessEmoji(tweet.Text);
-            
+
             if (tweet.Entities?.Hashtags != null && (bool) tweet.Entities?.Hashtags.Any())
-            {
                 ProcessHashtags(tweet.Entities.Hashtags);
-            }
-            
-            if (tweet.Entities?.Urls != null && (bool) tweet.Entities?.Urls.Any())
-            {
-                ProcessUrls(tweet.Entities.Urls);
-            }
+
+            if (tweet.Entities?.Urls != null && (bool) tweet.Entities?.Urls.Any()) ProcessUrls(tweet.Entities.Urls);
         }
 
         private void ProcessEmoji(string tweet)
         {
             var matches = Extensions.GetEmoji(tweet);
-            if (!matches.Any())
-            {
-                return;
-            }
-            
+            if (!matches.Any()) return;
+
             _tweetInfoRepository.AddAllEmojiCountDict(matches);
         }
 
         private void ProcessHashtags(IReadOnlyCollection<HashtagV2> entitiesHashtags)
         {
-            if (entitiesHashtags == null || entitiesHashtags.Count == 0)
-            {
-                return;
-            }
+            if (entitiesHashtags == null || entitiesHashtags.Count == 0) return;
 
-            foreach (var hashtag in entitiesHashtags)
-            {
-                _tweetInfoRepository.AddSingleHashtagCountDict(hashtag.Tag);
-            }
+            foreach (var hashtag in entitiesHashtags) _tweetInfoRepository.AddSingleHashtagCountDict(hashtag.Tag);
         }
 
         private void ProcessUrls(IReadOnlyCollection<UrlV2> entitiesUrls)
         {
-            if (entitiesUrls == null || !entitiesUrls.Any())
-            {
-                return;
-            }
+            if (entitiesUrls == null || !entitiesUrls.Any()) return;
 
             _tweetInfoRepository.IncrementCountWithUrl();
 
@@ -75,16 +59,11 @@ namespace TwitterStats.API.Services
                 var domain = Extensions.GetDomain(url.DisplayUrl).ToString();
 
                 if (string.IsNullOrEmpty(domain))
-                {
                     _logger.LogError("Unexpected null domain. Url: {url}", url.DisplayUrl);
-                }
-                
+
                 _tweetInfoRepository.AddSingleDomainCountDict(domain);
-                
-                if (IsImageUrl(domain))
-                {
-                    _tweetInfoRepository.IncrementCountWithUrlOfPhoto();
-                }
+
+                if (IsImageUrl(domain)) _tweetInfoRepository.IncrementCountWithUrlOfPhoto();
             }
         }
 

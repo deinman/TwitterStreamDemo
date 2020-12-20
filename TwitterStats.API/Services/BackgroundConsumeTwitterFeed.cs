@@ -21,11 +21,12 @@ namespace TwitterStats.API.Services
      */
     public class BackgroundConsumeTwitterFeed : BackgroundService
     {
+        private readonly ICredentialProvider _credentialProvider;
         private readonly ILogger<BackgroundConsumeTwitterFeed> _logger;
         private readonly ITweetProcessor _tweetProcessor;
-        private readonly ICredentialProvider _credentialProvider;
 
-        public BackgroundConsumeTwitterFeed(ILogger<BackgroundConsumeTwitterFeed> logger, ITweetProcessor tweetProcessor, ICredentialProvider credentialProvider)
+        public BackgroundConsumeTwitterFeed(ILogger<BackgroundConsumeTwitterFeed> logger,
+            ITweetProcessor tweetProcessor, ICredentialProvider credentialProvider)
         {
             _logger = logger;
             _tweetProcessor = tweetProcessor;
