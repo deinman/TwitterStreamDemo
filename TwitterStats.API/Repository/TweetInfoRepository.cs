@@ -42,6 +42,12 @@ namespace TwitterStats.API.Repository
             await Task.CompletedTask;
             Count++;
         }
+
+        public async Task IncrementCountWithUrl()
+        {
+            await Task.CompletedTask;
+            CountWithUrl++;
+        }
         
         public async Task IncrementCountWithUrlOfPhoto()
         {
@@ -49,23 +55,23 @@ namespace TwitterStats.API.Repository
             CountWithUrlOfPhoto++;
         }
 
-        public async Task AddToEmojiCountDict(ICollection matches)
+        public async Task AddAllEmojiCountDict(ICollection matches)
         {
             await Task.CompletedTask;
+            // Since we're adding all here, we can bind the CountWithEmoji to the same method.
             CountWithEmoji += matches.Count;
             Extensions.AddManyToCountDict(matches, EmojiCountDict);
         }
 
-        public async Task AddToHashtagCountDict(ICollection matches)
+        public async Task AddSingleHashtagCountDict(string hashtag)
         {
             await Task.CompletedTask;
-            Extensions.AddManyToCountDict(matches, HashtagCountDict);
+            Extensions.AddSingleToCountDict(hashtag, HashtagCountDict);
         }
 
-        public async Task AddToDomainCountDict(string domain)
+        public async Task AddSingleDomainCountDict(string domain)
         {
             await Task.CompletedTask;
-            CountWithUrl++;
             Extensions.AddSingleToCountDict(domain, DomainCountDict);
         }
         

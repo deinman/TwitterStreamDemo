@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using Moq;
-using Tweetinvi.Models;
 using Tweetinvi.Models.V2;
 using TwitterStats.API.Repository;
 using TwitterStats.API.Services;
@@ -10,8 +10,20 @@ using Xunit;
 
 namespace TwitterStats.UnitTest
 {
+    /*
+     * So this encompasses a bulk of the testing. I should probably test the TweetInfoRepository on its own, but every
+     * mechanism to work with it is through the context of the TweetProcessor, so I decided to save some time/effort.
+     * The naming of the methods could probably use more work/consistency, but it's good-enough
+     * 
+     */
     public class ProcessInfoTest
     {
+        private readonly Mock<ILogger<TweetProcessor>> _mockLogger;
+        public ProcessInfoTest()
+        {
+            _mockLogger = new Mock<ILogger<TweetProcessor>>();
+        }
+
         private IEnumerable<TweetV2> BuildListOfTweets()
         {
             return new List<TweetV2>
@@ -19,7 +31,7 @@ namespace TwitterStats.UnitTest
                 BuildTestTweet("Test"),
                 BuildTestTweet("On❤"),
                 BuildTestTweet("Test","pic.instagram.com/"),
-                BuildTestTweet("#Three"),
+                BuildTestTweet("#Three three", "null.com", "#Three"),
                 BuildTestTweet("Five","www.google.com/test"),
                 BuildTestTweet("Six", "www.google.com")
             };
@@ -35,6 +47,10 @@ namespace TwitterStats.UnitTest
                     Urls = new UrlV2[]
                     {
                         
+                    },
+                    Hashtags = new HashtagV2[]
+                    {
+                        
                     }
                 }
             };
@@ -42,7 +58,6 @@ namespace TwitterStats.UnitTest
 
         private TweetV2 BuildTestTweet(string tweetText, string url)
         {
-            
             return new()
             {
                 Text = tweetText,
@@ -54,9 +69,69 @@ namespace TwitterStats.UnitTest
                         {
                             DisplayUrl = url
                         }
+                    },
+                    Hashtags = new HashtagV2[]
+                    {
+                        
                     }
                 }
             };
+        }
+        
+        private TweetV2 BuildTestTweet(string tweetText, string url, string hashtag)
+        {
+            return new()
+            {
+                Text = tweetText,
+                Entities = new TweetEntitiesV2()
+                {
+                    Urls = new UrlV2[]
+                    {
+                        new ()
+                        {
+                            DisplayUrl = url
+                        }
+                    },
+                    Hashtags = new HashtagV2[]
+                    {
+                        new HashtagV2()
+                        {
+                            Hashtag = hashtag
+                        }
+                    }
+                }
+            };
+        }
+        
+        private TweetV2 BuildTestTweet(string tweetText, string url, string[] hashtags)
+        {
+            var t = new TweetV2()
+            {
+                Text = tweetText,
+                Entities = new TweetEntitiesV2()
+                {
+                    Urls = new UrlV2[]
+                    {
+                        new ()
+                        {
+                            DisplayUrl = url
+                        }
+                    },
+                    Hashtags = new HashtagV2[]
+                    {
+                        new HashtagV2()
+                        {
+                            Hashtag = hashtags[0]
+                        },
+                        new HashtagV2()
+                        {
+                            Hashtag = hashtags[1]
+                        }
+                    }
+                }
+            };
+
+            return t;
         }
         
         [Fact]
@@ -64,7 +139,7 @@ namespace TwitterStats.UnitTest
         {
             // Arrange
             var repo = new TweetInfoRepository();
-            var info = new TweetProcessor(repo);
+            var info = new TweetProcessor(repo, _mockLogger.Object);
             var tweet = BuildTestTweet("Test");
 
             // Act
@@ -79,7 +154,7 @@ namespace TwitterStats.UnitTest
         public async void Get_rate_success()
         {
             var repo = new TweetInfoRepository();
-            var info = new TweetProcessor(repo);
+            var info = new TweetProcessor(repo, _mockLogger.Object);
             var tweet = BuildTestTweet("Test");
             
             info.ProcessTweet(tweet);
@@ -95,7 +170,7 @@ namespace TwitterStats.UnitTest
         public async void No_emoji_produces_no_emoji()
         {
             var repo = new TweetInfoRepository();
-            var info = new TweetProcessor(repo);
+            var info = new TweetProcessor(repo, _mockLogger.Object);
             var tweet = BuildTestTweet("Test");
             
             info.ProcessTweet(tweet);
@@ -107,7 +182,7 @@ namespace TwitterStats.UnitTest
         public async void Emoji_produces_emoji()
         {
             var repo = new TweetInfoRepository();
-            var info = new TweetProcessor(repo);
+            var info = new TweetProcessor(repo, _mockLogger.Object);
             var tweet = BuildTestTweet("❤");
             
             info.ProcessTweet(tweet);
@@ -119,7 +194,7 @@ namespace TwitterStats.UnitTest
         public async void Calculate_emoji_rate_success()
         {
             var repo = new TweetInfoRepository();
-            var info = new TweetProcessor(repo);
+            var info = new TweetProcessor(repo, _mockLogger.Object);
         
             foreach (var tweet in BuildListOfTweets())
             {
@@ -136,7 +211,7 @@ namespace TwitterStats.UnitTest
         public async void Hashtag_is_counted()
         {
             var repo = new TweetInfoRepository();
-            var info = new TweetProcessor(repo);
+            var info = new TweetProcessor(repo, _mockLogger.Object);
         
             foreach (var tweet in BuildListOfTweets())
             {
@@ -152,8 +227,13 @@ namespace TwitterStats.UnitTest
         public async void Multiple_hashtags_in_tweet()
         {
             var repo = new TweetInfoRepository();
-            var info = new TweetProcessor(repo);
-            var tweet = BuildTestTweet("#Blessed #Mission");
+            var info = new TweetProcessor(repo, _mockLogger.Object);
+            var hashtags = new[]
+            {
+                "#Blessed",
+                "#Mission"
+            };
+            var tweet = BuildTestTweet("#Blessed #Mission", "temp", hashtags);
         
             info.ProcessTweet(tweet);
         
@@ -166,7 +246,7 @@ namespace TwitterStats.UnitTest
         public async void Identify_tweets_with_url()
         {
             var repo = new TweetInfoRepository();
-            var info = new TweetProcessor(repo);
+            var info = new TweetProcessor(repo, _mockLogger.Object);
             var tweet = BuildTestTweet("Test", "https://www.google.com");
             
             info.ProcessTweet(tweet);
@@ -180,7 +260,7 @@ namespace TwitterStats.UnitTest
         public async void Identify_tweets_with_image_url()
         {
             var repo = new TweetInfoRepository();
-            var info = new TweetProcessor(repo);
+            var info = new TweetProcessor(repo, _mockLogger.Object);
             var tweet = BuildTestTweet("Test", "http://pic.twitter.com/ABCDEFG");
             
             info.ProcessTweet(tweet);
@@ -194,7 +274,7 @@ namespace TwitterStats.UnitTest
         public async void Calculate_percentage_of_urls()
         {
             var repo = new TweetInfoRepository();
-            var info = new TweetProcessor(repo);
+            var info = new TweetProcessor(repo, _mockLogger.Object);
         
             foreach (var tweet in BuildListOfTweets())
             {
@@ -204,7 +284,7 @@ namespace TwitterStats.UnitTest
             var percentWithUrl = await repo.GetPercentWithUrl();
             var percentWithUrlImg = await repo.GetPercentWithUrlOfPhoto();
             
-            Assert.Equal(50, percentWithUrl);
+            Assert.Equal(67, percentWithUrl);
             Assert.Equal(17, percentWithUrlImg);
         }
         
@@ -212,7 +292,7 @@ namespace TwitterStats.UnitTest
         public async void Urls_Count_Success()
         {
             var repo = new TweetInfoRepository();
-            var info = new TweetProcessor(repo);
+            var info = new TweetProcessor(repo, _mockLogger.Object);
         
             foreach (var tweet in BuildListOfTweets())
             {

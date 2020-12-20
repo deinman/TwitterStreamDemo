@@ -11,11 +11,6 @@ namespace TwitterStats.API
             return Regex.Matches(tweet, Const.EmojiPattern);
         }
 
-        public static MatchCollection GetHashtags(string tweet)
-        {
-            return Regex.Matches(tweet, Const.HashtagPattern);
-        }
-
         public static Match GetDomain(string input)
         {
             return Regex.Match(input, Const.UrlPattern);
@@ -44,23 +39,6 @@ namespace TwitterStats.API
             else
             {
                 dict.Add(item, 1);
-            }
-        }
-
-        public static void OldAddManyToCountDict(IEnumerable matches, IDictionary<string, int> dict)
-        {
-            foreach (Match match in matches)
-            {
-                var matchString = match.ToString();
-
-                if (dict.ContainsKey(matchString))
-                {
-                    dict[matchString]++;
-                }
-                else
-                {
-                    dict.Add(matchString, 1);
-                }
             }
         }
     }
