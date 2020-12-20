@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using TwitterStats.API.DTO;
-using TwitterStats.API.Services;
+using TwitterStats.API.Repository;
 
 namespace TwitterStats.API.Controllers
 {
@@ -10,12 +9,11 @@ namespace TwitterStats.API.Controllers
     [Route("[controller]")]
     public class InfoController : ControllerBase
     {
-        private readonly ILogger<InfoController> _logger;
-        private readonly IProcessTweetInfo _info;
+        private readonly ITweetInfoRepository _info;
+        // No logger since this controller only serves up queries and Serilog's request logging captures that info.
 
-        public InfoController(ILogger<InfoController> logger, IProcessTweetInfo info)
+        public InfoController(ITweetInfoRepository info)
         {
-            _logger = logger;
             _info = info;
         }
 
@@ -24,7 +22,7 @@ namespace TwitterStats.API.Controllers
         {
             var ret = new CountDto
             {
-                TotalTweets = _info.GetCount()
+                TotalTweets = await _info.GetCount()
             };
 
             return Ok(ret);
@@ -35,7 +33,7 @@ namespace TwitterStats.API.Controllers
         {
             var ret = new TweetRateDto
             {
-                Rate = _info.GetTweetRate()
+                Rate = await _info.GetTweetRate()
             };
 
             return Ok(ret);
@@ -46,8 +44,8 @@ namespace TwitterStats.API.Controllers
         {
             var ret = new EmojiDto
             {
-                TopEmoji = _info.GetTopEmoji(count),
-                Percentage = _info.GetPercentWithEmoji()
+                TopEmoji = await _info.GetTopEmoji(count),
+                Percentage = await _info.GetPercentWithEmoji()
             };
 
             return Ok(ret);
@@ -58,7 +56,7 @@ namespace TwitterStats.API.Controllers
         {
             var ret = new HashtagDto
             {
-                TopHashtags = _info.GetTopHashtag(count)
+                TopHashtags = await _info.GetTopHashtag(count)
             };
 
             return Ok(ret);
@@ -69,9 +67,9 @@ namespace TwitterStats.API.Controllers
         {
             var ret = new UrlDto
             {
-                PercentWithUrl = _info.GetPercentWithUrl(),
-                PercentWithUrlOfImage = _info.GetPercentWithUrlOfPhoto(),
-                TopDomainsOfUrls = _info.GetTopDomain(count)
+                PercentWithUrl = await _info.GetPercentWithUrl(),
+                PercentWithUrlOfImage = await _info.GetPercentWithUrlOfPhoto(),
+                TopDomainsOfUrls = await _info.GetTopDomain(count)
             };
 
             return Ok(ret);
@@ -84,26 +82,26 @@ namespace TwitterStats.API.Controllers
             {
                 CountInfo = new CountDto
                 {
-                    TotalTweets = _info.GetCount()
+                    TotalTweets = await _info.GetCount()
                 },
                 TweetRate = new TweetRateDto
                 {
-                    Rate = _info.GetTweetRate()
+                    Rate = await _info.GetTweetRate()
                 },
                 EmojiInfo = new EmojiDto
                 {
-                    Percentage = _info.GetPercentWithEmoji(),
-                    TopEmoji = _info.GetTopEmoji(count)
+                    Percentage = await _info.GetPercentWithEmoji(),
+                    TopEmoji = await _info.GetTopEmoji(count)
                 },
                 HashtagInfo = new HashtagDto
                 {
-                    TopHashtags = _info.GetTopHashtag(count)
+                    TopHashtags = await _info.GetTopHashtag(count)
                 },
                 UrlInfo = new UrlDto
                 {
-                    PercentWithUrl = _info.GetPercentWithUrl(),
-                    PercentWithUrlOfImage = _info.GetPercentWithUrlOfPhoto(),
-                    TopDomainsOfUrls = _info.GetTopDomain(count)
+                    PercentWithUrl = await _info.GetPercentWithUrl(),
+                    PercentWithUrlOfImage = await _info.GetPercentWithUrlOfPhoto(),
+                    TopDomainsOfUrls = await _info.GetTopDomain(count)
                 }
             };
 

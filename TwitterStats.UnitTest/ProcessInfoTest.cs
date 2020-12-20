@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Moq;
+using Tweetinvi.Models;
 using Tweetinvi.Models.V2;
+using TwitterStats.API.Repository;
 using TwitterStats.API.Services;
 using Xunit;
 
@@ -9,11 +12,6 @@ namespace TwitterStats.UnitTest
 {
     public class ProcessInfoTest
     {
-        private ProcessTweetInfo BuildProcessTweetInfo()
-        {
-            return new();
-        }
-
         private IEnumerable<TweetV2> BuildListOfTweets()
         {
             return new List<TweetV2>
@@ -62,159 +60,169 @@ namespace TwitterStats.UnitTest
         }
         
         [Fact]
-        public void Increment_count_success()
+        public async void Increment_count_success()
         {
             // Arrange
-            var info = BuildProcessTweetInfo();
+            var repo = new TweetInfoRepository();
+            var info = new ProcessTweetInfo(repo);
             var tweet = BuildTestTweet("Test");
 
             // Act
             info.ProcessTweet(tweet);
-            var resultCount = info.GetCount();
+            var resultCount = await repo.GetCount();
             
             // Assert
             Assert.Equal(1, resultCount);
         }
 
         [Fact]
-        public void Get_rate_success()
+        public async void Get_rate_success()
         {
-            var info = BuildProcessTweetInfo();
+            var repo = new TweetInfoRepository();
+            var info = new ProcessTweetInfo(repo);
             var tweet = BuildTestTweet("Test");
             
             info.ProcessTweet(tweet);
             
             Thread.Sleep(1000);
-
-            var rate = info.GetTweetRate();
+        
+            var rate = await repo.GetTweetRate();
             
             Assert.Equal(1, rate.TweetsPerSecond);
         }
 
         [Fact]
-        public void No_emoji_produces_no_emoji()
+        public async void No_emoji_produces_no_emoji()
         {
-            var info = BuildProcessTweetInfo();
+            var repo = new TweetInfoRepository();
+            var info = new ProcessTweetInfo(repo);
             var tweet = BuildTestTweet("Test");
             
             info.ProcessTweet(tweet);
             
-            Assert.Equal(0, info.GetPercentWithEmoji());
+            Assert.Equal(0, await repo.GetPercentWithEmoji());
         }
-
+        
         [Fact]
-        public void Emoji_produces_emoji()
+        public async void Emoji_produces_emoji()
         {
-            var info = BuildProcessTweetInfo();
+            var repo = new TweetInfoRepository();
+            var info = new ProcessTweetInfo(repo);
             var tweet = BuildTestTweet("❤");
             
             info.ProcessTweet(tweet);
             
-            Assert.Equal(100, info.GetPercentWithEmoji());
-        }
-
-        [Fact]
-        public void Calculate_emoji_rate_success()
-        {
-            var info = BuildProcessTweetInfo();
-            var t = BuildTestTweet("Test");
-
-            foreach (var tweet in BuildListOfTweets())
-            {
-                info.ProcessTweet(tweet);
-            }
-
-            var topEmoji = info.GetTopEmoji(1).First().Key;
-            
-            Assert.Equal(17, info.GetPercentWithEmoji());
-            Assert.Equal("❤", topEmoji);
+            Assert.Equal(100, await repo.GetPercentWithEmoji());
         }
         
         [Fact]
-        public void Hashtag_is_counted()
+        public async void Calculate_emoji_rate_success()
         {
-            var info = BuildProcessTweetInfo();
-
+            var repo = new TweetInfoRepository();
+            var info = new ProcessTweetInfo(repo);
+        
             foreach (var tweet in BuildListOfTweets())
             {
                 info.ProcessTweet(tweet);
             }
-
-            var topHashtag = info.GetTopHashtag(1).First().Key;
+        
+            var topEmoji = await repo.GetTopEmoji(1);
             
-            Assert.Equal("#Three", topHashtag);
+            Assert.Equal(17, await repo.GetPercentWithEmoji());
+            Assert.Equal("❤", topEmoji.First().Key);
         }
-
+        
         [Fact]
-        public void Multiple_hashtags_in_tweet()
+        public async void Hashtag_is_counted()
         {
-            var info = BuildProcessTweetInfo();
+            var repo = new TweetInfoRepository();
+            var info = new ProcessTweetInfo(repo);
+        
+            foreach (var tweet in BuildListOfTweets())
+            {
+                info.ProcessTweet(tweet);
+            }
+        
+            var topHashtag = await repo.GetTopHashtag(1);
+            
+            Assert.Equal("#Three", topHashtag.First().Key);
+        }
+        
+        [Fact]
+        public async void Multiple_hashtags_in_tweet()
+        {
+            var repo = new TweetInfoRepository();
+            var info = new ProcessTweetInfo(repo);
             var tweet = BuildTestTweet("#Blessed #Mission");
-
+        
             info.ProcessTweet(tweet);
-
-            var result = info.GetTopHashtag(2);
+        
+            var result = await repo.GetTopHashtag(2);
             
             Assert.Equal(2, result.Count());
         }
-
+        
         [Fact]
-        public void Identify_tweets_with_url()
+        public async void Identify_tweets_with_url()
         {
-            var info = BuildProcessTweetInfo();
+            var repo = new TweetInfoRepository();
+            var info = new ProcessTweetInfo(repo);
             var tweet = BuildTestTweet("Test", "https://www.google.com");
             
             info.ProcessTweet(tweet);
-
-            var result = info.GetPercentWithUrl();
+        
+            var result = await repo.GetPercentWithUrl();
             
             Assert.Equal(100, result);
         }
-
+        
         [Fact]
-        public void Identify_tweets_with_image_url()
+        public async void Identify_tweets_with_image_url()
         {
-            var info = BuildProcessTweetInfo();
+            var repo = new TweetInfoRepository();
+            var info = new ProcessTweetInfo(repo);
             var tweet = BuildTestTweet("Test", "http://pic.twitter.com/ABCDEFG");
             
             info.ProcessTweet(tweet);
-
-            var result = info.GetPercentWithUrl();
+        
+            var result = await repo.GetPercentWithUrl();
             
             Assert.Equal(100, result);
         }
-
+        
         [Fact]
-        public void Calculate_percentage_of_urls()
+        public async void Calculate_percentage_of_urls()
         {
-            var info = BuildProcessTweetInfo();
-
+            var repo = new TweetInfoRepository();
+            var info = new ProcessTweetInfo(repo);
+        
             foreach (var tweet in BuildListOfTweets())
             {
                 info.ProcessTweet(tweet);
             }
-
-            var percentWithUrl = info.GetPercentWithUrl();
-            var percentWithUrlImg = info.GetPercentWithUrlOfPhoto();
+        
+            var percentWithUrl = await repo.GetPercentWithUrl();
+            var percentWithUrlImg = await repo.GetPercentWithUrlOfPhoto();
             
             Assert.Equal(50, percentWithUrl);
             Assert.Equal(17, percentWithUrlImg);
         }
-
+        
         [Fact]
-        public void Urls_Count_Success()
+        public async void Urls_Count_Success()
         {
-            var info = BuildProcessTweetInfo();
-
+            var repo = new TweetInfoRepository();
+            var info = new ProcessTweetInfo(repo);
+        
             foreach (var tweet in BuildListOfTweets())
             {
                 info.ProcessTweet(tweet);
             }
-
-            var result = info.GetTopDomain(2).First();
+        
+            var result = await repo.GetTopDomain(2);
             
-            Assert.Equal("www.google.com", result.Key);
-            Assert.Equal(2, result.Value);
+            Assert.Equal("www.google.com", result.First().Key);
+            Assert.Equal(2, result.First().Value);
         }
     }
 }

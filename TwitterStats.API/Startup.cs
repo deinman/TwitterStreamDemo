@@ -1,17 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using TwitterStats.API.Repository;
 using TwitterStats.API.Services;
 
 namespace TwitterStats.API
@@ -34,11 +28,12 @@ namespace TwitterStats.API
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "TwitterStats.API", Version = "v1"});
             });
 
-            services.AddHostedService<BackgroundConsumeTwitterFeed>();
-
-            services.AddSingleton<IProcessTweetInfo, ProcessTweetInfo>();
+            services.AddSingleton<ITweetInfoRepository, TweetInfoRepository>();
             
             services.AddTransient<ICredentialProvider, CredentialProvider>();
+            services.AddTransient<IProcessTweetInfo, ProcessTweetInfo>();
+
+            services.AddHostedService<BackgroundConsumeTwitterFeed>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

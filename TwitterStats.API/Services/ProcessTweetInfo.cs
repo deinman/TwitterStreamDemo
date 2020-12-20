@@ -1,22 +1,26 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Tweetinvi.Models.V2;
-using TwitterStats.API.Models;
+using TwitterStats.API.Repository;
 
 namespace TwitterStats.API.Services
 {
     public class ProcessTweetInfo : IProcessTweetInfo
     {
-        public ProcessTweetInfo()
+        private readonly ITweetInfoRepository _tweetInfoRepository;
+        public ProcessTweetInfo(ITweetInfoRepository tweetInfoRepository)
         {
-            TimeStarted = DateTime.Now;
+            _tweetInfoRepository = tweetInfoRepository;
         }
 
+        /// <summary>
+        /// This is the main entrypoint for collecting info on tweets.
+        /// </summary>
+        /// <param name="tweet"></param>
         public void ProcessTweet(TweetV2 tweet)
         {
-            Count++;
+            _tweetInfoRepository.IncrementCount();
             
             ProcessEmoji(tweet.Text);
             ProcessHashtags(tweet.Text);
@@ -30,11 +34,6 @@ namespace TwitterStats.API.Services
             }
         }
 
-        public long GetCount()
-        {
-            return Count;
-        }
-
         private void ProcessEmoji(string tweet)
         {
             var matches = Extensions.GetEmoji(tweet);
@@ -42,9 +41,8 @@ namespace TwitterStats.API.Services
             {
                 return;
             }
-
-            CountWithEmoji++;
-            Extensions.AddManyToCountDict(matches, EmojiCountDict);
+            
+            _tweetInfoRepository.AddToEmojiCountDict(matches);
         }
 
         private void ProcessHashtags(string tweet)
@@ -55,7 +53,7 @@ namespace TwitterStats.API.Services
                 return;
             }
             
-            Extensions.AddManyToCountDict(matches, HashtagCountDict);
+            _tweetInfoRepository.AddToHashtagCountDict(matches);
         }
 
         private void ProcessUrls(IReadOnlyCollection<UrlV2> entitiesUrls)
@@ -64,8 +62,6 @@ namespace TwitterStats.API.Services
             {
                 return;
             }
-
-            CountWithUrl += entitiesUrls.Count;
 
             foreach (var url in entitiesUrls)
             {
@@ -76,74 +72,26 @@ namespace TwitterStats.API.Services
                     throw new Exception($"Unexpected null: {nameof(domain)}");
                 }
                 
-                Extensions.AddSingleToCountDict(domain, DomainCountDict);
-
+                _tweetInfoRepository.AddToDomainCountDict(domain);
+                
                 if (IsImageUrl(domain))
                 {
-                    CountWithUrlOfPhoto++;
+                    _tweetInfoRepository.IncrementCountWithUrlOfPhoto();
                 }
             }
         }
 
         private bool IsImageUrl(string url)
         {
-            return url.Contains("pic.twitter.com") || url.Contains("instagram.com");
-        }
-        
-        
-
-        public TweetRate GetTweetRate()
-        {
-            var runningSeconds = (DateTime.Now - TimeStarted).TotalSeconds;
-            var ret = new TweetRate()
+            // This could be more dynamic, maybe populated by a DB table?
+            var imgUrlList = new List<string>
             {
-                TweetsPerSecond = (int)Math.Ceiling(Count / runningSeconds)
+                "pic.twitter.com",
+                "instagram.com",
+                "pic.instagram.com"
             };
-            return ret;
-        }
 
-        public IEnumerable<KeyValuePair<string, int>> GetTopEmoji(int count)
-        {
-            return EmojiCountDict.OrderByDescending(x => x.Value).Take(count);
+            return imgUrlList.Contains(url);
         }
-        
-        public IEnumerable<KeyValuePair<string, int>> GetTopHashtag(int count)
-        {
-            return HashtagCountDict.OrderByDescending(x => x.Value).Take(count);
-        }
-        
-        public IEnumerable<KeyValuePair<string, int>> GetTopDomain(int count)
-        {
-            return DomainCountDict.OrderByDescending(x => x.Value).Take(count);
-        }
-
-        public int GetPercentWithEmoji()
-        {
-            return GetPercentFromCount(CountWithEmoji, Count);
-        }
-
-        public int GetPercentWithUrl()
-        {
-            return GetPercentFromCount(CountWithUrl, Count);
-        }
-
-        public int GetPercentWithUrlOfPhoto()
-        {
-            return GetPercentFromCount(CountWithUrlOfPhoto, Count);
-        }
-
-        private int GetPercentFromCount(long num, long total)
-        {
-            return (int) Math.Round((double) (100 * num) / total);
-        }
-
-        private long Count { get; set; }
-        private long CountWithEmoji { get; set; }
-        private long CountWithUrl { get; set; }
-        private long CountWithUrlOfPhoto { get; set; }
-        private DateTime TimeStarted { get; }
-        private Dictionary<string, int> EmojiCountDict { get; } = new();
-        private Dictionary<string, int> HashtagCountDict { get; } = new();
-        private Dictionary<string, int> DomainCountDict { get; } = new();
     }
 }

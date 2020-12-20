@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Tweetinvi.Exceptions;
 
 namespace TwitterStats.API.Services
 {
@@ -35,10 +36,17 @@ namespace TwitterStats.API.Services
 
                 sampleStream.TweetReceived += (_, eventArgs) =>
                 {
-                    //_logger.LogDebug("{tweetText}", eventArgs.Tweet.Text);
                     try
                     {
                         _tweetProcessor.ProcessTweet(eventArgs.Tweet);
+                    }
+                    catch (TwitterAuthException e)
+                    {
+                        _logger.LogError(e, "Auth exception, check credentials");
+                    }
+                    catch (TwitterException e)
+                    {
+                        _logger.LogError(e, "Error from twitter");
                     }
                     catch (Exception e)
                     {
