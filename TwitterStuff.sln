@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitterStats.API", "TwitterStats.API\TwitterStats.API.csproj", "{5B5B463B-4F44-46BF-B84C-4D8D9A983A3C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitterStats.UnitTest", "TwitterStats.UnitTest\TwitterStats.UnitTest.csproj", "{AB8E2652-98F7-4B76-B387-D801E4C2D179}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5B5B463B-4F44-46BF-B84C-4D8D9A983A3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B5B463B-4F44-46BF-B84C-4D8D9A983A3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B5B463B-4F44-46BF-B84C-4D8D9A983A3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B5B463B-4F44-46BF-B84C-4D8D9A983A3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB8E2652-98F7-4B76-B387-D801E4C2D179}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB8E2652-98F7-4B76-B387-D801E4C2D179}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB8E2652-98F7-4B76-B387-D801E4C2D179}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB8E2652-98F7-4B76-B387-D801E4C2D179}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
