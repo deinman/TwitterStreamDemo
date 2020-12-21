@@ -27,10 +27,10 @@ namespace TwitterStats.API.Services
 
             ProcessEmoji(tweet.Text);
 
-            if (tweet.Entities?.Hashtags != null && (bool) tweet.Entities?.Hashtags.Any())
+            if (tweet.Entities?.Hashtags != null && tweet.Entities.Hashtags.Any())
                 ProcessHashtags(tweet.Entities.Hashtags);
 
-            if (tweet.Entities?.Urls != null && (bool) tweet.Entities?.Urls.Any()) ProcessUrls(tweet.Entities.Urls);
+            if (tweet.Entities?.Urls != null && tweet.Entities.Urls.Any()) ProcessUrls(tweet.Entities.Urls);
         }
 
         private void ProcessEmoji(string tweet)

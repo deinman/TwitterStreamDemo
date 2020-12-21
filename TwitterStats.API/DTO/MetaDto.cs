@@ -2,10 +2,10 @@
 {
     public class MetaDto
     {
-        public CountDto CountInfo { get; set; }
-        public TweetRateDto TweetRate { get; set; }
-        public EmojiDto EmojiInfo { get; set; }
-        public HashtagDto HashtagInfo { get; set; }
-        public UrlDto UrlInfo { get; set; }
+        public CountDto CountInfo { get; init; } = null!;
+        public TweetRateDto TweetRate { get; init; } = null!;
+        public EmojiDto EmojiInfo { get; init; } = null!;
+        public HashtagDto HashtagInfo { get; init; } = null!;
+        public UrlDto UrlInfo { get; init; } = null!;
     }
 }

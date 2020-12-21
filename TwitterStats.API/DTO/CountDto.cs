@@ -2,6 +2,6 @@
 {
     public class CountDto
     {
-        public long TotalTweets { get; set; }
+        public long TotalTweets { get; init; }
     }
 }

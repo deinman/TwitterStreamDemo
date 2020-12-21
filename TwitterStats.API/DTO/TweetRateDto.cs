@@ -4,6 +4,6 @@ namespace TwitterStats.API.DTO
 {
     public class TweetRateDto
     {
-        public TweetRate Rate { get; set; }
+        public TweetRate Rate { get; init; } = null!;
     }
 }
