@@ -43,14 +43,14 @@ namespace TwitterStats.API.Services
 
         private void ProcessHashtags(IReadOnlyCollection<HashtagV2> entitiesHashtags)
         {
-            if (entitiesHashtags == null || entitiesHashtags.Count == 0) return;
+            if (entitiesHashtags.Count == 0) return;
 
             foreach (var hashtag in entitiesHashtags) _tweetInfoRepository.AddSingleHashtagCountDict(hashtag.Tag);
         }
 
         private void ProcessUrls(IReadOnlyCollection<UrlV2> entitiesUrls)
         {
-            if (entitiesUrls == null || !entitiesUrls.Any()) return;
+            if (!entitiesUrls.Any()) return;
 
             _tweetInfoRepository.IncrementCountWithUrl();
 
